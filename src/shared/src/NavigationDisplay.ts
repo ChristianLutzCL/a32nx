@@ -64,7 +64,6 @@ export interface NdSymbol {
     radii?: number[],
 }
 
-
 export interface NdTraffic {
     alive?: boolean;
     ID: string;

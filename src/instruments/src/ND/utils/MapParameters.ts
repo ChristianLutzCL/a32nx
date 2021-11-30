@@ -1,4 +1,4 @@
-import { Coordinates, Xy } from '@fmgc/flightplanning/data/geo';
+import { Coordinates } from '@fmgc/flightplanning/data/geo';
 
 export class MapParameters {
     public centerCoordinates: Coordinates;

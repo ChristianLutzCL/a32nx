@@ -42,7 +42,7 @@ export class TcasSoundManager implements TcasComponent {
     }
 
     init(): void {
-
+        // do nothing
     }
 
     update(deltaTime: number): void {

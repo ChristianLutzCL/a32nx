@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DisplayUnit } from '@instruments/common/displayUnit';
 import { FlightPlanProvider } from '@instruments/common/flightplan';
 import { useSimVar } from '@instruments/common/simVars';
@@ -146,7 +146,7 @@ const NavigationDisplay: React.FC = () => {
                             <RadioNavInfo index={2} side={side} />
                         </>
                     )}
-                    <TcasWxrMessages modeIndex={modeIndex}/>
+                    <TcasWxrMessages modeIndex={modeIndex} />
                     <FMMessages modeIndex={modeIndex} side={side} />
 
                 </svg>

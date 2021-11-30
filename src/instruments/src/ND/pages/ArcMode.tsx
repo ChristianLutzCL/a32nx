@@ -4,7 +4,7 @@ import { getSmallestAngle } from '@instruments/common/utils';
 import { MathUtils } from '@shared/MathUtils';
 import { useFlightPlanManager } from '@instruments/common/flightplan';
 import { LatLongData } from '@typings/fs-base-ui/html_ui/JS/Types';
-import { RangeSetting, Mode, EfisSide, NdSymbol, NdTraffic } from '@shared/NavigationDisplay';
+import { RangeSetting, Mode, EfisSide, NdSymbol } from '@shared/NavigationDisplay';
 import { LateralMode } from '@shared/autopilot';
 import { FlightPlan, FlightPlanType } from '../elements/FlightPlan';
 import { MapParameters } from '../utils/MapParameters';

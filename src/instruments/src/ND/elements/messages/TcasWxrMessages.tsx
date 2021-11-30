@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import { Layer } from '@instruments/common/utils';
 import { useSimVar } from '@instruments/common/simVars';
 import { Mode } from '@shared/NavigationDisplay';

@@ -7,8 +7,8 @@ import { Coordinates } from '@fmgc/flightplanning/data/geo';
 import { MathUtils } from '@shared/MathUtils';
 import { Mode, NdTraffic } from '@shared/NavigationDisplay';
 import { usePersistentProperty } from '@instruments/common/persistence';
-import { MapParameters } from '../utils/MapParameters';
 import { useCoherentEvent } from '@instruments/common/hooks';
+import { MapParameters } from '../utils/MapParameters';
 
 export type TcasProps = {
     mapParams: MapParameters,
@@ -17,20 +17,20 @@ export type TcasProps = {
 
 function reducer(state, action) {
     switch (action.type) {
-      case 'add':
+    case 'add':
         return [...state, action.item];
-      case 'remove':
+    case 'remove':
         return [
-          ...state.slice(0, action.index),
-          ...state.slice(action.index + 1)
+            ...state.slice(0, action.index),
+            ...state.slice(action.index + 1),
         ];
-      default:
+    default:
         throw new Error();
     }
 }
 
 export const Traffic: FC<TcasProps> = ({ mapParams, mode }) => {
-    const [displayTraffic, displayTrafficDispatch] = useReducer(reducer, []);
+    const [displayTraffic] = useReducer(reducer, []);
     const [latLong] = useState<Coordinates>({ lat: NaN, long: NaN });
     const [debug] = usePersistentProperty('TCAS_DEBUG', '0');
     const [sensitivity] = useSimVar('L:A32NX_TCAS_SENSITIVITY', 'number', 200);
@@ -48,60 +48,61 @@ export const Traffic: FC<TcasProps> = ({ mapParams, mode }) => {
         [0, -250], [50, -244], [103, -227], [340, -227],
         [340, 180], [267, 180], [210, 241], [210, 383],
         [-210, 383], [-210, 300], [-264, 241], [-340, 241], [-340, -227],
-    ])
+    ]);
     const x: number = 361.5;
     const y: number = (mode === Mode.ARC) ? 606.5 : 368;
 
     useCoherentEvent('A32NX_TCAS_TRAFFIC', (airTraffic: NdTraffic[]) => {
         displayTraffic.forEach((traffic: NdTraffic) => traffic.alive = false);
-        airTraffic && airTraffic.forEach((tf: NdTraffic) => {
-            latLong.lat = tf.lat;
-            latLong.long = tf.lon;
-            let [x, y] = mapParams.coordinatesToXYy(latLong);
+        if (airTraffic) {
+            airTraffic.forEach((tf: NdTraffic) => {
+                latLong.lat = tf.lat;
+                latLong.long = tf.lon;
+                let [x, y] = mapParams.coordinatesToXYy(latLong);
 
-            // TODO FIXME: Full time option installed: For all ranges except in ZOOM ranges, NDRange > 9NM
-            if (!MathUtils.pointInPolygon(x, y, tcasMask)) {
-                if (tf.intrusionLevel < TaRaIntrusion.TA) {
-                    return;
+                // TODO FIXME: Full time option installed: For all ranges except in ZOOM ranges, NDRange > 9NM
+                if (!MathUtils.pointInPolygon(x, y, tcasMask)) {
+                    if (tf.intrusionLevel < TaRaIntrusion.TA) {
+                        return;
+                    }
+                    const ret: [number, number] | null = MathUtils.intersectWithPolygon(x, y, 0, 0, tcasMask);
+                    if (ret) [x, y] = ret;
                 }
-                const ret: [number, number] | null = MathUtils.intersectWithPolygon(x, y, 0, 0, tcasMask);
-                if (ret) [x, y] = ret;
-            }
-            tf.posX = x;
-            tf.posY = y;
+                tf.posX = x;
+                tf.posY = y;
 
-            const traffic: NdTraffic | undefined = displayTraffic.find((p) => p && p.ID === tf.ID);
-            if (traffic) {
-                traffic.alive = true;
-                traffic.alt = tf.alt;
-                traffic.heading = tf.heading;
-                traffic.intrusionLevel = tf.intrusionLevel;
-                traffic.lat = tf.lat;
-                traffic.lon = tf.lon;
-                traffic.relativeAlt = tf.relativeAlt;
-                traffic.vertSpeed = tf.vertSpeed;
-                traffic.posX = tf.posX;
-                traffic.posY = tf.posY;
-                if (debug !== '0') {
-                    traffic.hidden = tf.hidden;
-                    traffic.seen = tf.seen;
-                    traffic.raTau = tf.raTau;
-                    traffic.taTau = tf.taTau;
-                    traffic.vTau = tf.vTau;
-                    traffic.closureAccel = tf.closureAccel;
-                    traffic.closureRate = tf.closureRate;
+                const traffic: NdTraffic | undefined = displayTraffic.find((p) => p && p.ID === tf.ID);
+                if (traffic) {
+                    traffic.alive = true;
+                    traffic.alt = tf.alt;
+                    traffic.heading = tf.heading;
+                    traffic.intrusionLevel = tf.intrusionLevel;
+                    traffic.lat = tf.lat;
+                    traffic.lon = tf.lon;
+                    traffic.relativeAlt = tf.relativeAlt;
+                    traffic.vertSpeed = tf.vertSpeed;
+                    traffic.posX = tf.posX;
+                    traffic.posY = tf.posY;
+                    if (debug !== '0') {
+                        traffic.hidden = tf.hidden;
+                        traffic.seen = tf.seen;
+                        traffic.raTau = tf.raTau;
+                        traffic.taTau = tf.taTau;
+                        traffic.vTau = tf.vTau;
+                        traffic.closureAccel = tf.closureAccel;
+                        traffic.closureRate = tf.closureRate;
+                    }
+                } else {
+                    tf.alive = true;
+                    displayTraffic.push(tf);
                 }
-            } else {
-                tf.alive = true;
-                displayTraffic.push(tf);
-            }
-        });
+            });
+        }
         displayTraffic.forEach((traffic: NdTraffic, index: number) => {
             if (!traffic.alive) {
                 displayTraffic.splice(index, 1);
             }
         });
-
     });
 
     if (debug !== '0') {
