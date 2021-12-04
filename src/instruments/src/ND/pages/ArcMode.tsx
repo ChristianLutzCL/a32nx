@@ -77,6 +77,11 @@ export const ArcMode: React.FC<ArcModeProps> = ({ symbols, adirsAlign, rangeSett
         }
         return (
             <>
+                <Overlay
+                    heading={heading}
+                    rangeSetting={rangeSetting}
+                    tcasMode={tcasMode}
+                />
                 <g id="map" clipPath="url(#arc-mode-map-clip)">
                     <g visibility={mapHidden ? 'hidden' : 'visible'}>
                         <FlightPlan
@@ -102,18 +107,10 @@ export const ArcMode: React.FC<ArcModeProps> = ({ symbols, adirsAlign, rangeSett
                             || fmaLatMode === LateralMode.TRACK) && !fmaLatArmed) || !flightPlanManager.getCurrentFlightPlan().length) && (
                             <TrackLine x={384} y={620} heading={heading} track={track} />
                         )}
-                        <g clipPath="url(#arc-mode-tcas-clip)">
-                            <Traffic mode={Mode.ARC} mapParams={mapParams} />
-                        </g>
                     </g>
                     <RadioNeedle index={1} side={side} displayMode={Mode.ARC} centreHeight={620} />
                     <RadioNeedle index={2} side={side} displayMode={Mode.ARC} centreHeight={620} />
                 </g>
-                <Overlay
-                    heading={heading}
-                    rangeSetting={rangeSetting}
-                    tcasMode={tcasMode}
-                />
                 <ToWaypointIndicator info={flightPlanManager.getCurrentFlightPlan().computeActiveWaypointStatistics(ppos)} />
                 <ApproachMessage info={flightPlanManager.getAirportApproach()} flightPhase={fmgcFlightPhase} />
                 <TrackBug heading={heading} track={track} />
@@ -121,6 +118,9 @@ export const ArcMode: React.FC<ArcModeProps> = ({ symbols, adirsAlign, rangeSett
                 <SelectedHeadingBug heading={heading} selected={selectedHeading} />
                 <Plane />
                 <CrossTrack x={390} y={646} />
+                <g clipPath="url(#arc-mode-tcas-clip)">
+                    <Traffic mode={Mode.ARC} mapParams={mapParams} />
+                </g>
             </>
         );
     }
