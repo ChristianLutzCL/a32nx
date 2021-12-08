@@ -238,8 +238,6 @@ export class TcasComputer implements TcasComponent {
 
     private gpwsWarning: boolean;
 
-    constructor() {}
-
     public static get instance(): TcasComputer {
         if (!this._instance) {
             this._instance = new TcasComputer();
