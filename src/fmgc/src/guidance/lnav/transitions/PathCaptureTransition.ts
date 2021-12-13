@@ -98,7 +98,7 @@ export class PathCaptureTransition extends Transition {
             this.predictedPath.push({
                 type: PathVectorType.Line,
                 startPoint: this.previousLeg.getPathEndPoint(),
-                endPoint: Geo.legIntercept(this.previousLeg.getPathEndPoint(), this.previousLeg.outboundCourse + deltaTrack, this.nextLeg),
+                endPoint: Geo.legIntercept(this.previousLeg.getPathEndPoint(), this.previousLeg.outboundCourse, this.nextLeg),
             });
 
             return;
