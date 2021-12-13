@@ -91,6 +91,10 @@ export class DirectToFixTransition extends Transition {
     }
 
     recomputeWithParameters(isActive: boolean, tas: Knots, gs: MetresPerSecond, _ppos: Coordinates) {
+        if (this.isFrozen) {
+            return;
+        }
+
         const termFix = this.previousLeg.getPathEndPoint();
 
         // TODO revert to type 1 for CI/VI legs
