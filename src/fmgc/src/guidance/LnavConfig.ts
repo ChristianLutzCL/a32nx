@@ -5,7 +5,7 @@ export const LnavConfig = {
     /**
      * The minimum TAS we ever compute guidables with
      */
-    DEFAULT_MIN_PREDICTED_TAS: 210,
+    DEFAULT_MIN_PREDICTED_TAS: 160,
 
     /**
      * The number of transitions to compute after the active leg (-1: no limit, compute all transitions)
