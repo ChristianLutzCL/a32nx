@@ -35,6 +35,10 @@ export class CourseChange {
             return trackChange - 45;
         }
 
+        if (turnCenterDistance > 0 && turnCenterDistance >= -radius) {
+            return trackChange - 45;
+        }
+
         if (Math.abs(turnCenterDistance) >= radius) {
             return trackChange + 45;
         }
