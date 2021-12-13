@@ -812,7 +812,7 @@ export class ManagedFlightPlan {
             segment = this.addSegment(SegmentType.Departure);
             let procedure = new LegsProcedure(legs, origin, this._parentInstrument);
 
-            let runway: OneWayRunway | null = this.getOriginRunway();
+            const runway: OneWayRunway | null = this.getOriginRunway();
 
             if (runway) {
                 // console.error('bruh');
@@ -898,7 +898,7 @@ export class ManagedFlightPlan {
             while (procedure.hasNext()) {
                 const waypoint = await procedure.getNext().catch(console.error);
 
-                if (waypoint !== undefined) {
+                if (waypoint) {
                     // console.log('  ---- MFP: buildArrival: added waypoint ', waypoint.ident, ' to segment ', segment);
                     this.addWaypointAvoidingDuplicates(waypoint, ++waypointIndex, segment);
                 }
@@ -975,7 +975,7 @@ export class ManagedFlightPlan {
                 }
             }
 
-            let runway: OneWayRunway | null = this.getDestinationRunway();
+            const runway: OneWayRunway | null = this.getDestinationRunway();
 
             const procedure = new LegsProcedure(legs, this.getWaypoint(_startIndex - 1), this._parentInstrument);
 
@@ -1031,8 +1031,7 @@ export class ManagedFlightPlan {
             }
         }
 
-
-        /*if (missedLegs.length > 0) {
+        /* if (missedLegs.length > 0) {
             let { _startIndex, segment } = this.truncateSegment(SegmentType.Missed);
 
             if (segment === FlightPlanSegment.Empty) {
@@ -1052,7 +1051,7 @@ export class ManagedFlightPlan {
                     this.addWaypoint(waypoint, ++waypointIndex, segment.type);
                 }
             }
-        }*/
+        } */
 
         this.updateArrivalApproachSpeeds();
     }
@@ -1164,11 +1163,13 @@ export class ManagedFlightPlan {
         return plan;
     }
 
-    private addWaypointAvoidingDuplicates(waypoint: Waypoint, waypointIndex: number, segment: FlightPlanSegment): void {
+    private addWaypointAvoidingDuplicates(waypoint: WayPoint, waypointIndex: number, segment: FlightPlanSegment): void {
         const index = this.waypoints.findIndex((wp) => wp.ident === waypoint.ident); // FIXME this should really compare icaos...
 
         // FIXME this should collapse any legs between the old position and the newly inserted position
-        if (index !== -1 && (index === waypointIndex - 1 || index === waypointIndex + 1)) {
+        const wptDist = Math.abs(index - waypointIndex);
+
+        if (wptDist <= 2) {
             // console.log('  -------> MFP: addWaypointAvoidingDuplicates: removing duplicate waypoint ', this.getWaypoint(index).ident);
             const removedWp = this.getWaypoint(index);
             if (waypoint.legAltitudeDescription === AltitudeDescriptor.Empty && removedWp.legAltitudeDescription !== AltitudeDescriptor.Empty) {
@@ -1193,7 +1194,7 @@ export class ManagedFlightPlan {
         return null;
     }
 
-    public getDestinationRunway(): OneWayRunway | null{
+    public getDestinationRunway(): OneWayRunway | null {
         if (this.destinationAirfield) {
             if (this.procedureDetails.destinationRunwayIndex !== -1) {
                 return this.destinationAirfield.infos.oneWayRunways[this.procedureDetails.destinationRunwayIndex];
