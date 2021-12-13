@@ -1,4 +1,4 @@
-import { LateralMode, VerticalMode } from '@shared/autopilot';
+import { ControlLaw, LateralMode, VerticalMode } from '@shared/autopilot';
 import { TFLeg } from '@fmgc/guidance/lnav/legs/TF';
 import { MathUtils } from '@shared/MathUtils';
 import { Geometry } from '@fmgc/guidance/Geometry';
@@ -15,7 +15,6 @@ import { VMLeg } from '@fmgc/guidance/lnav/legs/VM';
 import { XFLeg } from '@fmgc/guidance/lnav/legs/XF';
 import { Coordinates } from '@fmgc/flightplanning/data/geo';
 import { GuidanceController } from '../GuidanceController';
-import { ControlLaw } from '../ControlLaws';
 import { GuidanceComponent } from '../GuidanceComponent';
 
 /**
@@ -274,7 +273,12 @@ export class LnavDriver implements GuidanceComponent {
 
             // Sequencing
 
-            if (this.guidanceController.automaticSequencing && geometry.shouldSequenceLeg(activeLegIdx, this.ppos)) {
+            let canSequence = false;
+            if (params.law === ControlLaw.LATERAL_PATH) {
+                canSequence = Math.abs(params.crossTrackError) < 7 && Math.abs(params.trackAngleError) < 90;
+            }
+
+            if (this.guidanceController.automaticSequencing && canSequence && geometry.shouldSequenceLeg(activeLegIdx, this.ppos)) {
                 const currentLeg = activeLeg;
                 const outboundTransition = geometry.transitions.get(activeLegIdx);
                 const nextLeg = geometry.legs.get(activeLegIdx + 1);
