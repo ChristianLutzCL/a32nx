@@ -8,6 +8,8 @@ import { FixedRadiusTransition } from '@fmgc/guidance/lnav/transitions/FixedRadi
 import { XFLeg } from '@fmgc/guidance/lnav/legs/XF';
 import { LnavConfig } from '@fmgc/guidance/LnavConfig';
 import { courseToFixDistanceToGo, courseToFixGuidance } from '@fmgc/guidance/lnav/CommonGeometry';
+import { Transition } from '@fmgc/guidance/lnav/Transition';
+import { Leg } from '@fmgc/guidance/lnav/legs/Leg';
 import { PathVector, PathVectorType } from '../PathVector';
 
 export class DFLeg extends XFLeg {
@@ -46,12 +48,30 @@ export class DFLeg extends XFLeg {
 
     private start: Coordinates | undefined;
 
+    private estimateStartPoint(): Coordinates {
+        let bearing = 0;
+        if (this.outboundGuidable instanceof Transition) {
+            bearing = this.outboundGuidable.nextLeg.inboundCourse + 180;
+        } else if (this.outboundGuidable instanceof Leg) {
+            bearing = this.outboundGuidable.inboundCourse + 180;
+        }
+
+        bearing = Avionics.Utils.clampAngle(bearing);
+
+        return Avionics.Utils.bearingDistanceToCoordinates(
+            bearing,
+            2,
+            this.fix.infos.coordinates.long,
+            this.fix.infos.coordinates.long,
+        );
+    }
+
     recomputeWithParameters(_isActive: boolean, _tas: Knots, _gs: Knots, _ppos: Coordinates, _trueTrack: DegreesTrue, previousGuidable: Guidable, nextGuidable: Guidable) {
         // We don't really do anything here
         this.inboundGuidable = previousGuidable;
         this.outboundGuidable = nextGuidable;
 
-        const newStart = this.inboundGuidable?.getPathEndPoint();
+        const newStart = this.inboundGuidable?.getPathEndPoint() ?? this.estimateStartPoint();
 
         // Adjust the start point if we can
         if (newStart) {
