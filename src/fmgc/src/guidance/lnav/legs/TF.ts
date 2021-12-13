@@ -51,11 +51,11 @@ export class TFLeg extends XFLeg {
     private nextGuidable: Guidable;
 
     get inboundCourse(): DegreesTrue {
-        return Geo.getGreatCircleBearing(this.from.infos.coordinates, this.to.infos.coordinates);
+        return Geo.getGreatCircleBearing(this.getPathStartPoint(), this.to.infos.coordinates);
     }
 
     get outboundCourse(): DegreesTrue {
-        return Geo.getGreatCircleBearing(this.from.infos.coordinates, this.to.infos.coordinates);
+        return Geo.getGreatCircleBearing(this.getPathStartPoint(), this.to.infos.coordinates);
     }
 
     get predictedPath(): PathVector[] {
@@ -63,7 +63,7 @@ export class TFLeg extends XFLeg {
     }
 
     getPathStartPoint(): Coordinates | undefined {
-        return this.previousGudiable?.getPathEndPoint();
+        return this.previousGudiable?.getPathEndPoint() ?? this.from.infos.coordinates;
     }
 
     getPathEndPoint(): Coordinates | undefined {
@@ -237,6 +237,6 @@ export class TFLeg extends XFLeg {
     }
 
     get repr(): string {
-        return `TF TO ${this.to.ident}`;
+        return `TF FROM ${this.from.ident} TO ${this.to.ident}`;
     }
 }
