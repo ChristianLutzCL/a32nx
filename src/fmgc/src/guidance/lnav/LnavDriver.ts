@@ -346,19 +346,16 @@ export class LnavDriver implements GuidanceComponent {
         // FIXME use a more accurate estimate, calculate in predictions
 
         const UTC_SECONDS = Math.floor(SimVar.GetGlobalVarValue('ZULU TIME', 'seconds'));
-        const hours = Math.floor(UTC_SECONDS / 3600) || 0;
-        const minutes = Math.floor(UTC_SECONDS % 3600 / 60) || 0;
 
         const nauticalMilesToGo = Avionics.Utils.computeGreatCircleDistance(ppos, termination);
         const secondsToGo = (nauticalMilesToGo / Math.max(LnavConfig.DEFAULT_MIN_PREDICTED_TAS, gs)) * 3600;
 
-        const hoursToGo = Math.floor(secondsToGo / 3600) || 0;
-        const minutesToGo = Math.floor(secondsToGo % 3600 / 60) || 0;
+        const eta = (UTC_SECONDS + secondsToGo) % (3600 * 24);
 
-        const newHours = (hours + hoursToGo) % 24;
-        const newMinutes = minutes + minutesToGo;
+        const hh = Math.floor(eta / 3600);
+        const mm = Math.floor((eta % 3600) / 60);
 
-        return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+        return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
     }
 
     sequenceLeg(_leg?: Leg, outboundTransition?: Transition): void {
